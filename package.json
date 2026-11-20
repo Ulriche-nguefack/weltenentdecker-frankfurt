@@ -1,0 +1,21 @@
+{
+  "name": "weltenentdecker-frankfurt",
+  "version": "1.0.0",
+  "description": "Webseite für das Reisebüro 'Die Weltenentdecker Frankfurt'",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "seed": "node generate_data.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.4.5",
+    "express-validator": "^7.1.0"
+  },
+  "engines": { "node": ">=18" },
+  "license": "UNLICENSED"
+}

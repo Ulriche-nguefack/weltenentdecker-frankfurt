@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "rolle": "mitarbeiter",
+    "name": "Admin",
+    "email": "Admin@weltenentdecker-frankfurt.de",
+    "passwortHash": "0184dce017b921bfe9908a4c551697b9:9797f4f0bab3b342280d0dfac6ca7ddb919075f2cc54591cb47cbf196f739c49b3b209b677553aa14e2b45655139e7a8474629fc4f6def68442c20c65d23a994",
+    "erstelltAm": "2026-01-05"
+  },
+  {
+    "id": 2,
+    "rolle": "kunde",
+    "name": "Max Mustermann",
+    "email": "max@example.com",
+    "passwortHash": "5dab1ca4e308637abd03318a9fc24897:21cb981775cae093fd736c8955c294b5f248ce3b3cd942eb6a8a233dbd7154f9f2788a1674a9b9de94b93e01be3586330ad6f02e59797c291f18ee46a690ab3b",
+    "erstelltAm": "2026-02-01"
+  }
+]

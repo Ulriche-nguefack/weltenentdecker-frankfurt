@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anmelden — Die Weltenentdecker Frankfurt</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<header class="kopfzeile"></header>
+<main>
+  <section class="section">
+    <div class="container">
+      <div class="karte karte-schmal">
+        <p class="eyebrow">Kundenkonto</p>
+        <h1 style="font-size:1.7rem;">Willkommen zurück</h1>
+        <p style="margin-bottom:22px;">Melden Sie sich an, um Ihre Buchungen einzusehen. Buchungen sind auch ohne Login möglich.</p>
+        <div id="msg"></div>
+        <form id="loginForm">
+          <div class="feld"><label for="email">E-Mail</label><input type="email" id="email" required></div>
+          <div class="feld" style="margin-bottom:20px;"><label for="pw">Passwort</label><input type="password" id="pw" required></div>
+          <button type="submit" class="btn btn-primary btn-block">Anmelden</button>
+        </form>
+        <p style="text-align:center;margin-top:16px;font-size:0.88rem;">
+          Noch kein Konto? <a href="/registrieren.html">Jetzt registrieren</a>
+        </p>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="footer"></footer>
+<script src="/js/gemeinsam.js"></script>
+<script>
+document.getElementById('loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const {ok,data} = await API.post('/api/auth/login',{email:document.getElementById('email').value,passwort:document.getElementById('pw').value});
+  if(!ok) { document.getElementById('msg').innerHTML=`<div class="fehlerbox"><ul>${(data.fehler||['Fehler']).map(f=>`<li>${escapeHtml(f)}</li>`).join('')}</ul></div>`; return; }
+  // Mitarbeiter → Dashboard, Kunde → Meine Buchungen
+  window.location.href = data.user.rolle === 'mitarbeiter' ? '/mitarbeiter/dashboard.html' : '/meine-buchungen.html';
+});
+</script>
+</body>
+</html>

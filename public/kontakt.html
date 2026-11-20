@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="de">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Kontakt — Die Weltenentdecker Frankfurt</title><link rel="stylesheet" href="/css/style.css"></head>
+<body>
+<header class="kopfzeile"></header>
+<main><section class="section"><div class="container">
+  <p class="eyebrow">Kontakt</p><h1>Wir sind für Sie da</h1>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start;">
+    <div class="karte"><h3>📍 Büro Frankfurt</h3><p>Die Weltenentdecker Frankfurt<br>Kaiserstraße 12<br>60311 Frankfurt am Main</p><h3 style="margin-top:20px;">📞 Telefon</h3><p>069 123 456 78<br>Mo–Fr 9–18 Uhr</p><h3 style="margin-top:20px;">✉️ E-Mail</h3><p>info@weltenentdecker-frankfurt.de</p></div>
+    <div class="karte"><h3>Schreiben Sie uns</h3><div id="msg"></div>
+      <form id="form">
+        <div class="feld"><label>Name</label><input type="text" id="name" required></div>
+        <div class="feld"><label>E-Mail</label><input type="email" id="email" required></div>
+        <div class="feld"><label>Nachricht</label><textarea id="nachricht" required></textarea></div>
+        <button type="submit" class="btn btn-primary btn-block">Nachricht senden</button>
+      </form>
+    </div>
+  </div>
+</div></section></main>
+<footer class="footer"></footer>
+<script src="/js/gemeinsam.js"></script>
+<script>document.getElementById('form').addEventListener('submit',e=>{e.preventDefault();document.getElementById('msg').innerHTML='<div class="erfolgsbox">Vielen Dank! Wir melden uns zeitnah.</div>';e.target.reset();});</script>
+</body></html>

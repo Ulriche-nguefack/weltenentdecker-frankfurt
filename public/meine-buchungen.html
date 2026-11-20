@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meine Buchungen — Die Weltenentdecker Frankfurt</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<header class="kopfzeile"></header>
+<main>
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">Mein Konto</p>
+      <h1>Meine Buchungen &amp; Anfragen</h1>
+      <div id="inhalt"><div class="ladeanzeige">Wird geladen…</div></div>
+    </div>
+  </section>
+</main>
+<footer class="footer"></footer>
+<script src="/js/gemeinsam.js"></script>
+<script>
+async function laden() {
+  const {data:me} = await API.get('/api/auth/me');
+  const inhalt = document.getElementById('inhalt');
+  if(!me.user) {
+    inhalt.innerHTML=`<div class="karte text-center"><p>Bitte melden Sie sich an, um Ihre Buchungen zu sehen.</p><a href="/login.html" class="btn btn-primary">Zum Login</a></div>`;
+    return;
+  }
+  const {data} = await API.get('/api/buchungen/meine');
+  if(!data.eintraege||data.eintraege.length===0) {
+    inhalt.innerHTML=`<div class="karte text-center"><p>Sie haben noch keine Buchungen oder Anfragen.</p><a href="/reisen.html" class="btn btn-primary">Reisen entdecken</a></div>`;
+    return;
+  }
+
+  const kommend = data.eintraege.filter(b=>b.zeitstatus==='kommend');
+  const vergangen = data.eintraege.filter(b=>b.zeitstatus==='vergangen');
+  const badges = {offen:'badge-offen',bestaetigt:'badge-bestaetigt',abgelehnt:'badge-abgelehnt',storniert:'badge-storniert'};
+  const badgeLabel = {offen:'Offen',bestaetigt:'Bestätigt',abgelehnt:'Abgelehnt',storniert:'Storniert'};
+
+  function karteHtml(b) {
+    return `<div class="buchung-karte">
+      <div class="buchung-karte-bild">
+        ${b.reiseBild?`<img src="${escapeHtml(b.reiseBild)}" alt="${escapeHtml(b.reiseTitel)}" loading="lazy" onerror="this.style.display='none'">`:''}
+      </div>
+      <div class="buchung-karte-inhalt">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap;">
+          <strong style="font-size:1rem;">${escapeHtml(b.reiseTitel)}</strong>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <span class="badge ${b.zeitstatus==='kommend'?'badge-kommend':'badge-vergangen'}">${b.zeitstatus==='kommend'?'🗓 Kommend':'✓ Vergangen'}</span>
+            <span class="badge ${badges[b.status]}">${badgeLabel[b.status]}</span>
+          </div>
+        </div>
+        <div style="margin-top:8px;font-size:0.82rem;color:var(--text-soft);display:flex;flex-wrap:wrap;gap:12px;">
+          <span>📋 ${b.typ==='buchung'?'Buchung':'Anfrage'}</span>
+          <span>👥 ${b.personenanzahl} Person${b.personenanzahl>1?'en':''}</span>
+          ${b.gewuenschterTermin?`<span>📅 ${formatDatum(b.gewuenschterTermin)}</span>`:''}
+          ${b.reisePreis?`<span>💶 ${formatPreis(b.reisePreis*b.personenanzahl)} gesamt</span>`:''}
+        </div>
+        <div style="margin-top:6px;font-size:0.75rem;color:#aaa;">Gebucht am ${new Date(b.erstelltAm).toLocaleDateString('de-DE')}</div>
+      </div>
+    </div>`;
+  }
+
+  let html = '';
+  if(kommend.length) {
+    html += `<h3 style="margin:0 0 14px;">Kommende Reisen (${kommend.length})</h3>`;
+    html += kommend.map(karteHtml).join('');
+  }
+  if(vergangen.length) {
+    html += `<h3 style="margin:28px 0 14px;color:var(--text-soft);">Vergangene Reisen (${vergangen.length})</h3>`;
+    html += vergangen.map(karteHtml).join('');
+  }
+  inhalt.innerHTML = html;
+}
+laden();
+</script>
+</body>
+</html>

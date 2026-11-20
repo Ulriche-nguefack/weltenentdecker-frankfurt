@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="de">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>FAQ — Die Weltenentdecker Frankfurt</title><link rel="stylesheet" href="/css/style.css">
+<style>.faq-item{border-bottom:1px solid var(--rand);padding:14px 0;}.faq-frage{cursor:pointer;font-weight:700;color:var(--primary);display:flex;justify-content:space-between;}.faq-antwort{max-height:0;overflow:hidden;transition:max-height 0.25s;}.faq-item.offen .faq-antwort{max-height:200px;margin-top:8px;}</style></head>
+<body>
+<header class="kopfzeile"></header>
+<main><section class="section"><div class="container">
+  <p class="eyebrow">Häufige Fragen</p><h1>FAQ</h1>
+  <div class="karte" style="max-width:720px;" id="faq"></div>
+</div></section></main>
+<footer class="footer"></footer>
+<script src="/js/gemeinsam.js"></script>
+<script>
+const faqs=[
+  {f:'Muss ich ein Konto erstellen, um zu buchen?',a:'Nein. Sie können jede Reise auch als Gast buchen oder anfragen.'},
+  {f:'Ist eine Telefonnummer Pflicht?',a:'Nein, die Telefonnummer ist optional.'},
+  {f:'Was ist der Unterschied zwischen Buchen und Anfragen?',a:'Bei direkter Buchung wird Ihr Platz sofort reserviert. Bei einer Anfrage prüfen wir Ihren Wunsch individuell.'},
+  {f:'Wie aktuell sind die freien Plätze?',a:'Die freien Plätze werden bei jeder Buchung in Echtzeit aktualisiert.'},
+  {f:'Kann ich meine Buchung nachträglich ändern?',a:'Kontaktieren Sie uns bitte per Telefon oder E-Mail.'},
+];
+document.getElementById('faq').innerHTML=faqs.map((f,i)=>`<div class="faq-item" id="fi${i}"><div class="faq-frage" onclick="document.getElementById('fi${i}').classList.toggle('offen')"><span>${escapeHtml(f.f)}</span><span>▾</span></div><div class="faq-antwort"><p>${escapeHtml(f.a)}</p></div></div>`).join('');
+</script>
+</body></html>

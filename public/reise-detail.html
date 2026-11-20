@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reisedetails — Die Weltenentdecker Frankfurt</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<header class="kopfzeile"></header>
+<main>
+  <div class="container" style="padding-top:20px;">
+    <p style="font-size:0.8rem;color:var(--text-soft)"><a href="/index.html">Start</a> / <a href="/reisen.html">Reisen</a> / <span id="breadcrumb">…</span></p>
+  </div>
+  <section class="section" style="padding-top:8px;">
+    <div class="container">
+      <div id="ladeAnzeige" class="ladeanzeige">Reise wird geladen…</div>
+      <div id="detailInhalt" class="versteckt">
+
+        <!-- DETAIL GRID: Formular links, Info rechts -->
+        <div class="detail-grid">
+
+          <!-- LINKE SEITE: Buchungsformular -->
+          <div>
+            <h1 id="rTitel" style="font-size:1.6rem;margin-bottom:4px;"></h1>
+            <p id="rLand" style="font-size:0.9rem;color:var(--text-soft);margin-bottom:10px;"></p>
+            <p id="rBeschreibung" style="font-size:0.95rem;color:var(--text);line-height:1.5;margin-bottom:20px;"></p>
+
+            <div class="karte">
+              <h3 style="margin-bottom:16px;">Jetzt buchen oder anfragen</h3>
+
+              <div id="formNachricht"></div>
+
+              <form id="buchungsForm">
+                <input type="hidden" name="reiseId" id="reiseId">
+
+                <!-- Buchung oder Anfrage -->
+                <div class="feld">
+                  <label>Was möchten Sie tun?</label>
+                  <div style="display:flex;gap:16px;">
+                    <label style="display:flex;align-items:center;gap:6px;font-weight:400;cursor:pointer;">
+                      <input type="radio" name="typ" value="buchung" checked style="width:auto;"> Direkt buchen
+                    </label>
+                    <label style="display:flex;align-items:center;gap:6px;font-weight:400;cursor:pointer;">
+                      <input type="radio" name="typ" value="anfrage" style="width:auto;"> Anfrage senden
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Name Vorname Nachname -->
+                <div class="form-row">
+                  <div class="feld">
+                    <label for="vorname">Vorname *</label>
+                    <input type="text" id="vorname" name="vorname" placeholder="Max" required>
+                  </div>
+                  <div class="feld">
+                    <label for="nachname">Nachname *</label>
+                    <input type="text" id="nachname" name="nachname" placeholder="Mustermann" required>
+                  </div>
+                </div>
+
+                <div class="feld">
+                  <label for="email">E-Mail-Adresse *</label>
+                  <input type="email" id="email" name="email" placeholder="max@beispiel.de" required>
+                </div>
+
+                <div class="feld">
+                  <label for="telefon">Telefonnummer (optional)</label>
+                  <input type="tel" id="telefon" name="telefonnummer" placeholder="+49 …">
+                </div>
+
+                <div class="form-row">
+                  <div class="feld">
+                    <label for="personen">Personenanzahl *</label>
+                    <input type="number" id="personen" name="personenanzahl" min="1" max="10" value="2" required>
+                  </div>
+                  <div class="feld">
+                    <label for="termin">Wunschtermin</label>
+                    <select id="termin" name="gewuenschterTermin">
+                      <option value="">Bitte wählen</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="feld" id="extrasContainer"></div>
+
+                <div class="feld">
+                  <label for="wunsch">Sonderwünsche</label>
+                  <textarea id="wunsch" name="sonderwuensche" placeholder="z. B. Kinderbett, Diät, Allergien…"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-akzent btn-block" id="absenden" style="font-size:1rem;padding:14px;">
+                  Jetzt buchen
+                </button>
+                <p class="hinweis" style="margin-top:8px;text-align:center;">* Pflichtfelder · <a href="/agb.html">AGB</a> · <a href="/datenschutz.html">Datenschutz</a></p>
+              </form>
+            </div>
+          </div>
+
+          <!-- RECHTE SEITE: Reise-Zusammenfassung -->
+          <div class="buchungsbox-sticky">
+            <div class="reise-zusammenfassung">
+              <div class="reise-zus-bild">
+                <img id="rBild" src="" alt="">
+              </div>
+              <div class="reise-zus-inhalt">
+                <p style="font-size:0.75rem;color:var(--text-soft);margin-bottom:2px;">Ihr Reiseziel</p>
+                <strong id="rZielName" style="font-size:1.1rem;color:var(--text);"></strong>
+                <div class="reise-zus-preis" id="rPreis"></div>
+                <p style="font-size:0.75rem;color:var(--text-soft);margin-bottom:0;">pro Person</p>
+
+                <div class="reise-zus-meta" id="rMeta"></div>
+
+                <div class="inklusiv-liste" id="rInklusiv"></div>
+
+                <!-- Platz-Anzeige -->
+                <div id="rPlaetze" style="margin-top:14px;padding:10px 12px;background:var(--bg);border-radius:var(--radius-sm);font-size:0.82rem;"></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="footer"></footer>
+<script src="/js/gemeinsam.js"></script>
+<script>
+const reiseId = new URLSearchParams(window.location.search).get('id');
+let aktReise = null;
+
+async function laden() {
+  if(!reiseId) { document.getElementById('ladeAnzeige').textContent = 'Keine Reise ausgewählt.'; return; }
+  const {ok, data} = await API.get('/api/reisen/' + reiseId);
+  if(!ok) { document.getElementById('ladeAnzeige').textContent = 'Reise nicht gefunden.'; return; }
+  aktReise = data;
+  document.getElementById('ladeAnzeige').classList.add('versteckt');
+  document.getElementById('detailInhalt').classList.remove('versteckt');
+  document.title = data.titel + ' — Die Weltenentdecker Frankfurt';
+  document.getElementById('breadcrumb').textContent = data.titel;
+
+  // Links: Formular-Kopf
+  document.getElementById('rTitel').textContent = data.titel;
+  document.getElementById('rLand').textContent = '📍 ' + data.ziel + ', ' + data.land;
+  document.getElementById('rBeschreibung').textContent = data.beschreibung || '';
+  document.getElementById('reiseId').value = data.id;
+
+  // Termine befüllen
+  const sel = document.getElementById('termin');
+  (data.startTermine||[]).forEach(t => {
+    const o = document.createElement('option');
+    o.value = t; o.textContent = formatDatum(t); sel.appendChild(o);
+  });
+
+  // Extras
+  if(data.extras && data.extras.length) {
+    const ec = document.getElementById('extrasContainer');
+    ec.innerHTML = '<label>Extras</label>';
+    data.extras.forEach(e => {
+      ec.innerHTML += `<label style="display:flex;align-items:center;gap:8px;font-weight:400;margin-top:6px;cursor:pointer;">
+        <input type="checkbox" name="extra" value="${escapeHtml(e.name)}" style="width:auto;">
+        ${escapeHtml(e.name)} ${e.preis>0?'(+'+formatPreis(e.preis)+')':'(kostenlos)'}
+      </label>`;
+    });
+  }
+
+  // Rechts: Zusammenfassung
+  const bildEl = document.getElementById('rBild');
+  bildEl.dataset.name = data.ziel;
+  bildEl.dataset.themenwelt = data.themenwelt;
+  bildEl.onerror = () => bildFehler(bildEl);
+  bildEl.src = data.bild || '';
+  bildEl.alt = data.titel;
+  if (!data.bild) bildFehler(bildEl);
+  document.getElementById('rZielName').textContent = data.ziel + ', ' + data.land;
+  document.getElementById('rPreis').textContent = formatPreis(data.preisProPerson);
+  document.getElementById('rMeta').innerHTML = `
+    <span>📅 ${data.dauerTage} Tage</span>
+    <span>✈️ ${data.flug}</span>
+    <span>🍽️ ${data.verpflegung}</span>
+  `;
+  const inkl = document.getElementById('rInklusiv');
+  if(data.inklusivleistungen && data.inklusivleistungen.length) {
+    inkl.innerHTML = '<p style="font-size:0.78rem;font-weight:700;color:var(--primary);margin:0 0 6px;">Inklusivleistungen</p><ul style="margin:0;padding:0;">' +
+      data.inklusivleistungen.map(i=>`<li>${escapeHtml(i)}</li>`).join('') + '</ul>';
+  }
+  const fp = data.freiePlaetze;
+  const pl = document.getElementById('rPlaetze');
+  pl.innerHTML = fp > 0
+    ? `<span style="color:var(--erfolg);font-weight:700;">✓ ${fp} von ${data.maxPersonen} Plätzen verfügbar</span>`
+    : `<span style="color:var(--fehler);font-weight:700;">⚠ Ausgebucht — Bitte Anfrage senden</span>`;
+}
+
+// Radio-Button ändert Button-Text
+document.querySelectorAll('input[name="typ"]').forEach(r => {
+  r.addEventListener('change', () => {
+    document.getElementById('absenden').textContent = r.value === 'buchung' ? 'Jetzt buchen' : 'Anfrage senden';
+  });
+});
+
+document.getElementById('buchungsForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const nm = document.getElementById('formNachricht');
+  nm.innerHTML = '';
+  const fd = new FormData(e.target);
+  const body = {
+    typ: fd.get('typ'),
+    reiseId: parseInt(fd.get('reiseId')),
+    name: (fd.get('vorname') + ' ' + fd.get('nachname')).trim(),
+    email: fd.get('email'),
+    telefonnummer: fd.get('telefonnummer'),
+    personenanzahl: parseInt(fd.get('personenanzahl')),
+    gewuenschterTermin: fd.get('gewuenschterTermin'),
+    sonderwuensche: fd.get('sonderwuensche'),
+    extras: fd.getAll('extra')
+  };
+  const btn = document.getElementById('absenden');
+  btn.disabled = true; btn.textContent = 'Wird gesendet…';
+  const {ok, data} = await API.post('/api/buchungen', body);
+  if(!ok) {
+    nm.innerHTML = `<div class="fehlerbox"><ul>${(data.fehler||['Fehler']).map(f=>`<li>${escapeHtml(f)}</li>`).join('')}</ul></div>`;
+    btn.disabled = false; btn.textContent = body.typ==='buchung'?'Jetzt buchen':'Anfrage senden';
+    return;
+  }
+  nm.innerHTML = `<div class="erfolgsbox">${escapeHtml(data.nachricht)}</div>`;
+  e.target.reset();
+  btn.disabled = false; btn.textContent = 'Jetzt buchen';
+  laden();
+});
+
+laden();
+</script>
+</body>
+</html>

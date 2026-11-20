@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="de">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Konto erstellen — Die Weltenentdecker Frankfurt</title>
+<link rel="stylesheet" href="/css/style.css"></head>
+<body>
+<header class="kopfzeile"></header>
+<main><section class="section"><div class="container"><div class="karte karte-schmal">
+  <p class="eyebrow">Neues Konto</p><h1 style="font-size:1.7rem;">Konto erstellen</h1>
+  <p style="margin-bottom:22px;">Mit einem Konto sehen Sie alle Ihre Buchungen auf einen Blick.</p>
+  <div id="msg"></div>
+  <form id="form">
+    <div class="feld"><label>Name</label><input type="text" id="name" required></div>
+    <div class="feld"><label>E-Mail</label><input type="email" id="email" required></div>
+    <div class="feld" style="margin-bottom:6px;"><label>Passwort</label><input type="password" id="pw" minlength="8" required></div>
+    <p class="hinweis" style="margin-bottom:18px;">Mindestens 8 Zeichen.</p>
+    <button type="submit" class="btn btn-primary btn-block">Konto erstellen</button>
+  </form>
+  <p style="text-align:center;margin-top:16px;font-size:0.88rem;">Bereits ein Konto? <a href="/login.html">Anmelden</a></p>
+</div></div></section></main>
+<footer class="footer"></footer>
+<script src="/js/gemeinsam.js"></script>
+<script>
+document.getElementById('form').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const {ok,data}=await API.post('/api/auth/registrieren',{name:document.getElementById('name').value,email:document.getElementById('email').value,passwort:document.getElementById('pw').value});
+  if(!ok){document.getElementById('msg').innerHTML=`<div class="fehlerbox"><ul>${(data.fehler||['Fehler']).map(f=>`<li>${escapeHtml(f)}</li>`).join('')}</ul></div>`;return;}
+  window.location.href='/meine-buchungen.html';
+});
+</script>
+</body></html>

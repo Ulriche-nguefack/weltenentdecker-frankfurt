@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reisen — Die Weltenentdecker Frankfurt</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<header class="kopfzeile"></header>
+<main>
+  <section class="section" style="padding-bottom:0">
+    <div class="container">
+      <p class="eyebrow">Reiseangebote</p><h1>Finden Sie Ihre nächste Reise</h1>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <div class="filterleiste">
+        <div class="feld" style="margin-bottom:0;grid-column:span 2;"><label>Suche</label><input type="text" id="fSuche" placeholder="Ziel, Land, Stichwort…"></div>
+        <div class="feld" style="margin-bottom:0;"><label>Reiseart</label><select id="fThema"><option value="">Alle</option><option value="Staedtereisen">Städtereisen</option><option value="Strandreisen">Strandreisen</option><option value="Abenteuerreisen">Abenteuerreisen</option><option value="Kulturreisen">Kulturreisen</option><option value="Kreuzfahrten">Kreuzfahrten</option></select></div>
+        <div class="feld" style="margin-bottom:0;"><label>Preis bis (€)</label><input type="number" id="fPreis" placeholder="z. B. 1500"></div>
+        <div class="feld" style="margin-bottom:0;"><label>Dauer bis (Tage)</label><input type="number" id="fDauer" placeholder="z. B. 10"></div>
+        <div class="feld" style="margin-bottom:0;"><label>Flug</label><select id="fFlug"><option value="">Egal</option><option value="inklusive">inklusive</option><option value="optional">optional</option><option value="ohne Flug">ohne Flug</option></select></div>
+        <div class="feld" style="margin-bottom:0;"><label>&nbsp;</label><button class="btn btn-primary btn-block" id="filterBtn">Filtern</button></div>
+      </div>
+      <div class="section-header">
+        <p id="anzahl" style="color:var(--text-soft);margin:0;">Lade Reisen…</p>
+        <button class="btn btn-sm btn-outline" id="resetBtn">Filter zurücksetzen</button>
+      </div>
+      <div class="reisen-grid" id="grid"><div class="ladeanzeige">Reisen werden geladen…</div></div>
+    </div>
+  </section>
+</main>
+<footer class="footer"></footer>
+<script src="/js/gemeinsam.js"></script>
+<script>
+const f = {suche:document.getElementById('fSuche'),thema:document.getElementById('fThema'),preis:document.getElementById('fPreis'),dauer:document.getElementById('fDauer'),flug:document.getElementById('fFlug')};
+const params = new URLSearchParams(window.location.search);
+if(params.get('themenwelt')) f.thema.value = params.get('themenwelt');
+if(params.get('suche')) f.suche.value = params.get('suche');
+
+async function laden() {
+  const q = new URLSearchParams();
+  if(f.suche.value.trim()) q.set('suche',f.suche.value.trim());
+  if(f.thema.value) q.set('themenwelt',f.thema.value);
+  if(f.preis.value) q.set('preisBis',f.preis.value);
+  if(f.dauer.value) q.set('dauerBis',f.dauer.value);
+  if(f.flug.value) q.set('flug',f.flug.value);
+  const {data} = await API.get('/api/reisen?'+q);
+  document.getElementById('anzahl').textContent = data.anzahl + ' Reise' + (data.anzahl===1?'':' n') + ' gefunden';
+  document.getElementById('grid').innerHTML = data.reisen.length ? data.reisen.map(r=>reiseKarteHtml(r)).join('') : '<p>Keine Reisen gefunden.</p>';
+}
+document.getElementById('filterBtn').addEventListener('click',laden);
+document.getElementById('resetBtn').addEventListener('click',()=>{Object.values(f).forEach(x=>x.value='');laden();});
+f.suche.addEventListener('keyup',e=>{if(e.key==='Enter')laden();});
+laden();
+</script>
+</body>
+</html>

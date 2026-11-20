@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin-Dashboard — Die Weltenentdecker Frankfurt</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body style="background:#f4f7f8;">
+<div class="admin-layout">
+
+  <!-- LINKES MENÜ -->
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar-logo">
+      Die Weltenentdecker
+      <small>Admin-Bereich</small>
+    </div>
+    <nav class="admin-nav">
+      <button class="admin-nav-item aktiv" onclick="zeigTab('uebersicht',this)">
+        <span class="nav-icon">📊</span> Übersicht
+      </button>
+      <button class="admin-nav-item" onclick="zeigTab('reisen',this)">
+        <span class="nav-icon">✈️</span> Reiseangebote
+      </button>
+      <button class="admin-nav-item" onclick="zeigTab('themenwelten',this)">
+        <span class="nav-icon">🗂️</span> Themenwelten
+      </button>
+      <hr class="admin-nav-sep">
+      <button class="admin-nav-item" onclick="zeigTab('buchungen',this)">
+        <span class="nav-icon">📋</span> Buchungen & Anfragen
+      </button>
+      <hr class="admin-nav-sep">
+      <button class="admin-nav-item" onclick="zeigTab('startseite',this)">
+        <span class="nav-icon">🖊️</span> Startseite bearbeiten
+      </button>
+    </nav>
+    <div class="admin-sidebar-footer">
+      <a href="/index.html">← Zur Webseite</a>
+      <button onclick="abmelden()" style="margin-top:8px;background:none;border:none;color:rgba(255,255,255,0.6);cursor:pointer;font-size:0.8rem;padding:0;display:flex;align-items:center;gap:6px;">🚪 Abmelden</button>
+    </div>
+  </aside>
+
+  <!-- RECHTS: INHALT -->
+  <div class="admin-main">
+    <div class="admin-topbar">
+      <h1 id="pageTitle">Übersicht</h1>
+      <div id="topbarAktion"></div>
+    </div>
+    <div class="admin-content">
+
+      <!-- ===== ÜBERSICHT ===== -->
+      <div id="tab-uebersicht">
+        <div class="stats-grid" id="statsGrid">
+          <div class="ladeanzeige">Lade Statistiken…</div>
+        </div>
+        <div style="margin-top:24px;">
+          <div class="tabellen-kopf"><h2>Zuletzt eingegangene Buchungen</h2></div>
+          <div class="tabelle-wrap">
+            <table class="tabelle">
+              <thead><tr><th>Reise</th><th>Name</th><th>Typ</th><th>Status</th><th>Datum</th></tr></thead>
+              <tbody id="letzteBody"><tr><td colspan="5">Lädt…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== REISEN ===== -->
+      <div id="tab-reisen" class="versteckt">
+        <div class="filterleiste" style="margin-bottom:16px;">
+          <div class="feld" style="margin-bottom:0;grid-column:span 2;">
+            <label>Suche</label>
+            <input type="text" id="rSuche" placeholder="Titel oder Ziel…">
+          </div>
+          <div class="feld" style="margin-bottom:0;">
+            <label>Themenwelt</label>
+            <select id="rThema">
+              <option value="">Alle</option>
+              <option value="Staedtereisen">Städtereisen</option>
+              <option value="Strandreisen">Strandreisen</option>
+              <option value="Abenteuerreisen">Abenteuerreisen</option>
+              <option value="Kulturreisen">Kulturreisen</option>
+              <option value="Kreuzfahrten">Kreuzfahrten</option>
+            </select>
+          </div>
+          <div class="feld" style="margin-bottom:0;">
+            <label>&nbsp;</label>
+            <button class="btn btn-primary btn-block" onclick="ladeReisen()">Filtern</button>
+          </div>
+        </div>
+        <div class="tabelle-wrap">
+          <table class="tabelle">
+            <thead><tr><th>Titel</th><th>Themenwelt</th><th>Ziel</th><th>Preis</th><th>Dauer</th><th>Plätze</th><th>Top</th><th>Aktionen</th></tr></thead>
+            <tbody id="reisenBody"><tr><td colspan="8">Lädt…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== THEMENWELTEN ===== -->
+      <div id="tab-themenwelten" class="versteckt">
+        <div class="tabelle-wrap">
+          <table class="tabelle">
+            <thead><tr><th>Themenwelt</th><th>Icon</th><th>Anzahl Reisen</th></tr></thead>
+            <tbody id="themenweltenBody"><tr><td colspan="3">Lädt…</td></tr></tbody>
+          </table>
+        </div>
+        <p style="margin-top:12px;font-size:0.82rem;color:var(--text-soft);">Um eine Themenwelt umzubenennen, bitte in der <strong>data/reisen.json</strong> den Wert im Feld „themenwelt" anpassen.</p>
+      </div>
+
+      <!-- ===== BUCHUNGEN ===== -->
+      <div id="tab-buchungen" class="versteckt">
+        <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+          <button class="btn btn-sm btn-outline bFilter aktiv" data-status="">Alle</button>
+          <button class="btn btn-sm btn-outline bFilter" data-status="offen">Offen</button>
+          <button class="btn btn-sm btn-outline bFilter" data-status="bestaetigt">Bestätigt</button>
+          <button class="btn btn-sm btn-outline bFilter" data-status="abgelehnt">Abgelehnt</button>
+          <button class="btn btn-sm btn-outline bFilter" data-status="storniert">Storniert</button>
+        </div>
+        <div class="tabelle-wrap">
+          <table class="tabelle">
+            <thead><tr><th>Reise</th><th>Typ</th><th>Name</th><th>Kontakt</th><th>Pers.</th><th>Termin</th><th>Status</th><th>Datum</th><th>Aktion</th></tr></thead>
+            <tbody id="buchungenBody"><tr><td colspan="9">Lädt…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== STARTSEITE BEARBEITEN ===== -->
+      <div id="tab-startseite" class="versteckt">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:900px;">
+
+          <!-- HERO BEREICH -->
+          <div class="karte">
+            <h3 style="margin-bottom:16px;">🖼️ Hero-Bereich</h3>
+            <div id="startseiteMsg"></div>
+            <div class="feld">
+              <label>Hauptüberschrift</label>
+              <input type="text" id="heroTitel" placeholder="Die Welt wartet. Wir finden Ihre Route.">
+            </div>
+            <div class="feld">
+              <label>Untertext</label>
+              <textarea id="heroUntertitel" rows="3"></textarea>
+            </div>
+            <div class="feld">
+              <label>Hero-Bild URL</label>
+              <input type="url" id="heroBild" placeholder="https://images.unsplash.com/…">
+              <small style="color:var(--text-soft);font-size:0.75rem;">Tipp: Unsplash-URL einfügen für ein kostenloses Foto</small>
+            </div>
+            <div id="bildVorschau" style="margin:8px 0;border-radius:var(--radius);overflow:hidden;max-height:160px;"></div>
+            <button class="btn btn-primary" onclick="speichereStartseite()">Änderungen speichern</button>
+          </div>
+
+          <!-- LOGO & FAVICON -->
+          <div class="karte">
+            <h3 style="margin-bottom:16px;">🏷️ Logo & Favicon</h3>
+            <div id="logoMsg"></div>
+
+            <div class="feld">
+              <label>Logo-Name (linke Seite in Navigation)</label>
+              <input type="text" id="logoName" placeholder="Die Weltenentdecker">
+              <small style="color:var(--text-soft);font-size:0.75rem;">Der farbige Teil (z. B. „Frankfurt") bleibt immer sichtbar</small>
+            </div>
+
+            <div class="feld" style="margin-top:8px;">
+              <label>Favicon-URL <span style="font-size:0.75rem;color:var(--text-soft);">(kleines Icon im Browser-Tab)</span></label>
+              <input type="url" id="faviconUrl" placeholder="https://…/icon.png oder .ico">
+              <small style="color:var(--text-soft);font-size:0.75rem;">Empfohlen: 32×32px PNG oder ICO-Datei</small>
+            </div>
+
+            <!-- Favicon Vorschau -->
+            <div id="faviconVorschau" style="margin:10px 0;display:flex;align-items:center;gap:10px;background:var(--bg);border-radius:6px;padding:10px;display:none;">
+              <img id="faviconBild" src="" style="width:32px;height:32px;border-radius:4px;object-fit:contain;" alt="Favicon-Vorschau">
+              <div style="font-size:0.8rem;color:var(--text-soft);">So sieht das Favicon im Browser-Tab aus</div>
+            </div>
+
+            <div style="background:#EDF6F9;border-radius:6px;padding:10px;margin-bottom:14px;font-size:0.78rem;color:#4f6367;">
+              <strong style="color:#006D77;">Keine URL zur Hand?</strong><br>
+              Kostenlose Icons: <a href="https://favicon.io" target="_blank" style="color:#006D77;">favicon.io</a> oder <a href="https://icons8.com" target="_blank" style="color:#006D77;">icons8.com</a>
+            </div>
+
+            <button class="btn btn-primary" onclick="speichereLogo()">Logo & Favicon speichern</button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Reise anlegen / bearbeiten -->
+<div class="modal-bg" id="reiseModal">
+  <div class="modal">
+    <h3 id="modalTitel">Neue Reise anlegen</h3>
+    <div id="modalMsg"></div>
+    <form id="reiseForm">
+      <input type="hidden" id="rfId">
+      <div class="form-row">
+        <div class="feld"><label>Titel *</label><input type="text" id="rfTitel" required></div>
+        <div class="feld"><label>Themenwelt *</label>
+          <select id="rfThema" required>
+            <option value="Staedtereisen">Städtereisen</option>
+            <option value="Strandreisen">Strandreisen</option>
+            <option value="Abenteuerreisen">Abenteuerreisen</option>
+            <option value="Kulturreisen">Kulturreisen</option>
+            <option value="Kreuzfahrten">Kreuzfahrten</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="feld"><label>Ziel (Ort) *</label><input type="text" id="rfZiel" required></div>
+        <div class="feld"><label>Land *</label><input type="text" id="rfLand" required></div>
+      </div>
+      <div class="feld"><label>Beschreibung *</label><textarea id="rfBeschreibung" required></textarea></div>
+      <div class="form-row">
+        <div class="feld"><label>Preis pro Person (€) *</label><input type="number" id="rfPreis" min="0" required></div>
+        <div class="feld"><label>Dauer (Tage) *</label><input type="number" id="rfDauer" min="1" required></div>
+      </div>
+      <div class="form-row">
+        <div class="feld"><label>Max. Personen *</label><input type="number" id="rfMax" min="1" required></div>
+        <div class="feld"><label>Freie Plätze *</label><input type="number" id="rfFrei" min="0" required></div>
+      </div>
+      <div class="form-row">
+        <div class="feld"><label>Flug</label>
+          <select id="rfFlug"><option value="inklusive">inklusive</option><option value="optional">optional</option><option value="ohne Flug">ohne Flug</option></select>
+        </div>
+        <div class="feld"><label>Verpflegung</label>
+          <select id="rfVerpflegung">
+            <option>Frühstück</option><option>Halbpension</option><option>Vollpension</option><option>All Inclusive</option><option>ohne Verpflegung</option>
+          </select>
+        </div>
+      </div>
+      <div class="feld"><label>Bild-URL (Unsplash o.ä.)</label><input type="url" id="rfBild" placeholder="https://images.unsplash.com/…"></div>
+      <div class="feld"><label style="display:flex;align-items:center;gap:8px;font-weight:400;cursor:pointer;">
+        <input type="checkbox" id="rfTop" style="width:auto;"> Als Top-Angebot markieren
+      </label></div>
+      <div style="display:flex;gap:10px;margin-top:8px;">
+        <button type="button" class="btn btn-outline" style="flex:1;" onclick="schliesseModal()">Abbrechen</button>
+        <button type="submit" class="btn btn-primary" style="flex:1;">Speichern</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/gemeinsam.js"></script>
+<script>
+let aktuelleReisen = [];
+let buchungFilter = '';
+
+// Zugriffsschutz
+(async function init() {
+  const {data} = await API.get('/api/auth/me');
+  if(!data.user || data.user.rolle !== 'mitarbeiter') { window.location.href='/mitarbeiter/login.html'; return; }
+  ladeStats();
+  ladeLetzteB();
+})();
+
+// Tab-Wechsel
+function zeigTab(name, btn) {
+  document.querySelectorAll('[id^="tab-"]').forEach(t=>t.classList.add('versteckt'));
+  document.getElementById('tab-'+name).classList.remove('versteckt');
+  document.querySelectorAll('.admin-nav-item').forEach(b=>b.classList.remove('aktiv'));
+  if(btn) btn.classList.add('aktiv');
+  const titel = {uebersicht:'Übersicht',reisen:'Reiseangebote',themenwelten:'Themenwelten',buchungen:'Buchungen & Anfragen',startseite:'Startseite bearbeiten'};
+  document.getElementById('pageTitle').textContent = titel[name]||name;
+  const topbar = document.getElementById('topbarAktion');
+  topbar.innerHTML = name==='reisen' ? '<button class="btn btn-primary btn-sm" onclick="oeffneNeu()">+ Neue Reise</button>' : '';
+  if(name==='reisen') ladeReisen();
+  if(name==='buchungen') ladeBuchungen();
+  if(name==='themenwelten') ladeTW();
+  if(name==='startseite') ladeStartseite();
+}
+
+// ===== STATISTIKEN =====
+async function ladeStats() {
+  const {data} = await API.get('/api/admin/statistiken');
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat-kachel offen"><div class="stat-icon">📋</div><div class="stat-zahl">${data.offeneBuchungen}</div><div class="stat-label">Offene Buchungen</div></div>
+    <div class="stat-kachel bestaetigt"><div class="stat-icon">✅</div><div class="stat-zahl">${data.bestaetigteBuchungen}</div><div class="stat-label">Bestätigte Buchungen</div></div>
+    <div class="stat-kachel gesamt"><div class="stat-icon">📊</div><div class="stat-zahl">${data.gesamtBuchungen}</div><div class="stat-label">Buchungen gesamt</div></div>
+    <div class="stat-kachel reisen"><div class="stat-icon">✈️</div><div class="stat-zahl">${data.gesamtReisen}</div><div class="stat-label">Reiseangebote</div></div>
+  `;
+}
+
+async function ladeLetzteB() {
+  const {data} = await API.get('/api/buchungen');
+  const letzte = (data.eintraege||[]).slice(0,8);
+  const badges = {offen:'badge-offen',bestaetigt:'badge-bestaetigt',abgelehnt:'badge-abgelehnt',storniert:'badge-storniert'};
+  const labels = {offen:'Offen',bestaetigt:'Bestätigt',abgelehnt:'Abgelehnt',storniert:'Storniert'};
+  document.getElementById('letzteBody').innerHTML = letzte.length ? letzte.map(b=>`<tr>
+    <td>${escapeHtml(b.reiseTitel)}</td>
+    <td>${escapeHtml(b.name)}</td>
+    <td>${b.typ==='buchung'?'Buchung':'Anfrage'}</td>
+    <td><span class="badge ${badges[b.status]}">${labels[b.status]}</span></td>
+    <td>${new Date(b.erstelltAm).toLocaleDateString('de-DE')}</td>
+  </tr>`).join('') : '<tr><td colspan="5">Keine Buchungen vorhanden.</td></tr>';
+}
+
+// ===== REISEN =====
+async function ladeReisen() {
+  const q = new URLSearchParams();
+  const s = document.getElementById('rSuche').value.trim();
+  const t = document.getElementById('rThema').value;
+  if(s) q.set('suche',s); if(t) q.set('themenwelt',t);
+  const {data} = await API.get('/api/reisen?'+q);
+  aktuelleReisen = data.reisen;
+  document.getElementById('reisenBody').innerHTML = data.reisen.length ? data.reisen.map(r=>`<tr>
+    <td>${escapeHtml(r.titel)}</td>
+    <td>${themenweltLabel(r.themenwelt)}</td>
+    <td>${escapeHtml(r.ziel)}</td>
+    <td>${formatPreis(r.preisProPerson)}</td>
+    <td>${r.dauerTage}T</td>
+    <td>${r.freiePlaetze}/${r.maxPersonen}</td>
+    <td>${r.topAngebot?'⭐':''}</td>
+    <td>
+      <button class="btn-icon edit" title="Bearbeiten" onclick="oeffneBearbeiten(${r.id})">✏️</button>
+      <button class="btn-icon delete" title="Löschen" onclick="loescheReise(${r.id})">🗑️</button>
+    </td>
+  </tr>`).join('') : '<tr><td colspan="8">Keine Reisen gefunden.</td></tr>';
+}
+
+function oeffneNeu() {
+  document.getElementById('modalTitel').textContent='Neue Reise anlegen';
+  document.getElementById('modalMsg').innerHTML='';
+  document.getElementById('reiseForm').reset();
+  document.getElementById('rfId').value='';
+  document.getElementById('reiseModal').classList.add('offen');
+}
+
+function oeffneBearbeiten(id) {
+  const r = aktuelleReisen.find(x=>x.id===id); if(!r) return;
+  document.getElementById('modalTitel').textContent='Reise bearbeiten';
+  document.getElementById('modalMsg').innerHTML='';
+  document.getElementById('rfId').value=r.id;
+  document.getElementById('rfTitel').value=r.titel;
+  document.getElementById('rfThema').value=r.themenwelt;
+  document.getElementById('rfZiel').value=r.ziel;
+  document.getElementById('rfLand').value=r.land;
+  document.getElementById('rfBeschreibung').value=r.beschreibung;
+  document.getElementById('rfPreis').value=r.preisProPerson;
+  document.getElementById('rfDauer').value=r.dauerTage;
+  document.getElementById('rfMax').value=r.maxPersonen;
+  document.getElementById('rfFrei').value=r.freiePlaetze;
+  document.getElementById('rfFlug').value=r.flug;
+  document.getElementById('rfVerpflegung').value=r.verpflegung;
+  document.getElementById('rfBild').value=r.bild||'';
+  document.getElementById('rfTop').checked=!!r.topAngebot;
+  document.getElementById('reiseModal').classList.add('offen');
+}
+
+function schliesseModal() { document.getElementById('reiseModal').classList.remove('offen'); }
+
+document.getElementById('reiseForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const id = document.getElementById('rfId').value;
+  const body = {
+    titel:document.getElementById('rfTitel').value,
+    themenwelt:document.getElementById('rfThema').value,
+    ziel:document.getElementById('rfZiel').value,
+    land:document.getElementById('rfLand').value,
+    beschreibung:document.getElementById('rfBeschreibung').value,
+    preisProPerson:document.getElementById('rfPreis').value,
+    dauerTage:document.getElementById('rfDauer').value,
+    maxPersonen:document.getElementById('rfMax').value,
+    freiePlaetze:document.getElementById('rfFrei').value,
+    flug:document.getElementById('rfFlug').value,
+    verpflegung:document.getElementById('rfVerpflegung').value,
+    bild:document.getElementById('rfBild').value,
+    topAngebot:document.getElementById('rfTop').checked
+  };
+  const {ok,data} = id ? await API.put('/api/reisen/'+id,body) : await API.post('/api/reisen',body);
+  if(!ok) { document.getElementById('modalMsg').innerHTML=`<div class="fehlerbox"><ul>${(data.fehler||['Fehler']).map(f=>`<li>${escapeHtml(f)}</li>`).join('')}</ul></div>`; return; }
+  schliesseModal(); ladeReisen(); ladeStats();
+});
+
+async function loescheReise(id) {
+  if(!confirm('Diese Reise wirklich löschen?')) return;
+  await API.delete('/api/reisen/'+id);
+  ladeReisen(); ladeStats();
+}
+
+// ===== THEMENWELTEN =====
+async function ladeTW() {
+  const {data} = await API.get('/api/admin/themenwelten');
+  const icons = {Staedtereisen:'🏙️',Strandreisen:'🏖️',Abenteuerreisen:'🧭',Kulturreisen:'🏛️',Kreuzfahrten:'🚢'};
+  document.getElementById('themenweltenBody').innerHTML = data.map(t=>`<tr>
+    <td><strong>${themenweltLabel(t.name)}</strong></td>
+    <td>${icons[t.name]||'🌍'}</td>
+    <td>${t.anzahl} Reisen</td>
+  </tr>`).join('');
+}
+
+// ===== BUCHUNGEN =====
+document.querySelectorAll('.bFilter').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.bFilter').forEach(b=>b.classList.remove('aktiv'));
+    btn.classList.add('aktiv');
+    buchungFilter = btn.dataset.status;
+    ladeBuchungen();
+  });
+});
+
+async function ladeBuchungen() {
+  const url = buchungFilter ? `/api/buchungen?status=${buchungFilter}` : '/api/buchungen';
+  const {data} = await API.get(url);
+  const badges = {offen:'badge-offen',bestaetigt:'badge-bestaetigt',abgelehnt:'badge-abgelehnt',storniert:'badge-storniert'};
+  document.getElementById('buchungenBody').innerHTML = (data.eintraege||[]).length ? data.eintraege.map(b=>`<tr>
+    <td>${escapeHtml(b.reiseTitel)}</td>
+    <td>${b.typ==='buchung'?'Buchung':'Anfrage'}</td>
+    <td>${escapeHtml(b.name)}</td>
+    <td style="font-size:0.8rem;">${escapeHtml(b.email)}${b.telefonnummer?'<br>'+escapeHtml(b.telefonnummer):''}</td>
+    <td>${b.personenanzahl}</td>
+    <td>${formatDatum(b.gewuenschterTermin)}</td>
+    <td>
+      <select class="status-select" onchange="aendereStatus(${b.id},this.value)">
+        <option value="offen" ${b.status==='offen'?'selected':''}>Offen</option>
+        <option value="bestaetigt" ${b.status==='bestaetigt'?'selected':''}>Bestätigt</option>
+        <option value="abgelehnt" ${b.status==='abgelehnt'?'selected':''}>Abgelehnt</option>
+        <option value="storniert" ${b.status==='storniert'?'selected':''}>Storniert</option>
+      </select>
+    </td>
+    <td>${new Date(b.erstelltAm).toLocaleDateString('de-DE')}</td>
+    <td><button class="btn-icon delete" title="Löschen" onclick="loescheBuchung(${b.id})">🗑️</button></td>
+  </tr>`).join('') : '<tr><td colspan="9">Keine Einträge vorhanden.</td></tr>';
+}
+
+async function aendereStatus(id, status) { await API.put('/api/buchungen/'+id+'/status',{status}); ladeStats(); }
+async function loescheBuchung(id) { if(!confirm('Buchung löschen?')) return; await API.delete('/api/buchungen/'+id); ladeBuchungen(); ladeStats(); }
+
+// ===== STARTSEITE BEARBEITEN =====
+async function ladeStartseite() {
+  const {data} = await API.get('/api/admin/seiteninhalt');
+  document.getElementById('heroTitel').value = data.heroTitel||'';
+  document.getElementById('heroUntertitel').value = data.heroUntertitel||'';
+  document.getElementById('heroBild').value = data.heroBild||'';
+  document.getElementById('logoName').value = data.logoName||'Die Weltenentdecker';
+  document.getElementById('faviconUrl').value = data.faviconUrl||'';
+  zeigeVorschau(data.heroBild);
+  zeigeFaviconVorschau(data.faviconUrl);
+}
+
+document.getElementById('heroBild').addEventListener('input', e => zeigeVorschau(e.target.value));
+document.getElementById('faviconUrl').addEventListener('input', e => zeigeFaviconVorschau(e.target.value));
+
+function zeigeVorschau(url) {
+  const v = document.getElementById('bildVorschau');
+  v.innerHTML = url ? `<img src="${escapeHtml(url)}" style="width:100%;max-height:160px;object-fit:cover;border-radius:var(--radius);" onerror="this.style.display='none'">` : '';
+}
+
+function zeigeFaviconVorschau(url) {
+  const box = document.getElementById('faviconVorschau');
+  const img = document.getElementById('faviconBild');
+  if(url) {
+    img.src = url;
+    box.style.display = 'flex';
+    img.onerror = () => { box.style.display = 'none'; };
+  } else {
+    box.style.display = 'none';
+  }
+}
+
+async function speichereStartseite() {
+  const body = {
+    heroTitel: document.getElementById('heroTitel').value,
+    heroUntertitel: document.getElementById('heroUntertitel').value,
+    heroBild: document.getElementById('heroBild').value
+  };
+  const {ok} = await API.put('/api/admin/seiteninhalt', body);
+  document.getElementById('startseiteMsg').innerHTML = ok
+    ? '<div class="erfolgsbox">✓ Hero-Bereich gespeichert!</div>'
+    : '<div class="fehlerbox">Fehler beim Speichern.</div>';
+}
+
+async function speichereLogo() {
+  const body = {
+    logoName: document.getElementById('logoName').value,
+    faviconUrl: document.getElementById('faviconUrl').value
+  };
+  const {ok} = await API.put('/api/admin/seiteninhalt', body);
+  document.getElementById('logoMsg').innerHTML = ok
+    ? '<div class="erfolgsbox">✓ Logo & Favicon gespeichert! Seite neu laden, um Änderungen zu sehen.</div>'
+    : '<div class="fehlerbox">Fehler beim Speichern.</div>';
+}
+
+async function abmelden() { await API.post('/api/auth/logout',{}); window.location.href='/index.html'; }
+</script>
+</body>
+</html>

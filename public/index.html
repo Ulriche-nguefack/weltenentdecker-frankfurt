@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Die Weltenentdecker Frankfurt — Ihr Reisebüro</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<header class="kopfzeile"></header>
+<main>
+  <!-- HERO (Texte aus Admin bearbeitbar) -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <p class="eyebrow">Reisebüro in Frankfurt am Main</p>
+        <h1 id="heroTitel">Die Welt wartet. Wir finden Ihre Route.</h1>
+        <p id="heroUntertitel" style="font-size:1.05rem;max-width:46ch;margin-bottom:0;">Ob Städtetrip, Strandurlaub, Abenteuer, Kulturreise oder Kreuzfahrt — wir beraten persönlich aus Frankfurt.</p>
+        <div class="hero-aktionen">
+          <a href="/reisen.html" class="btn btn-primary">Alle Reisen entdecken</a>
+          <a href="/kontakt.html" class="btn btn-outline">Beratung anfragen</a>
+        </div>
+      </div>
+      <div class="hero-bild">
+        <img id="heroBild" src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=900&h=600&fit=crop" alt="Reisen weltweit">
+      </div>
+    </div>
+  </section>
+
+  <!-- THEMENWELTEN -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header">
+        <div><p class="eyebrow">Reisewelten</p><h2>Wofür schlägt Ihr Reiseherz?</h2></div>
+      </div>
+      <div class="themenwelten-grid" id="themenweltenGrid"><div class="ladeanzeige">Lädt…</div></div>
+    </div>
+  </section>
+
+  <!-- TOP-ANGEBOTE -->
+  <section class="section section-weiss">
+    <div class="container">
+      <div class="section-header">
+        <div><p class="eyebrow">Aktuell beliebt</p><h2>Unsere Top-Angebote</h2></div>
+        <a href="/reisen.html" class="btn btn-outline btn-sm">Alle ansehen</a>
+      </div>
+      <div class="reisen-grid" id="topGrid"><div class="ladeanzeige">Lädt…</div></div>
+    </div>
+  </section>
+
+  <!-- ÜBER UNS -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header"><div><p class="eyebrow">Über uns</p><h2>Persönlich beraten, jederzeit buchbar</h2></div></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;">
+        <div class="karte"><h3>👨‍👩‍👧 Für jede Reisegruppe</h3><p>Ob Paar, Familie oder Freundeskreis — wir finden für jede Lebenslage die passende Reise.</p></div>
+        <div class="karte"><h3>🕒 Rund um die Uhr buchbar</h3><p>Unsere Webseite arbeitet auch außerhalb der Öffnungszeiten — buchen oder anfragen, wann immer Sie wollen.</p></div>
+        <div class="karte"><h3>🧭 Von Frankfurt in die Welt</h3><p>Mit Sitz in Frankfurt vermitteln wir Reisen in zahlreiche Regionen weltweit.</p></div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="footer"></footer>
+<script src="/js/gemeinsam.js"></script>
+<script>
+async function laden() {
+  // Hero-Text aus Admin laden
+  try {
+    const {data} = await API.get('/api/admin/seiteninhalt');
+    if(data.heroTitel) document.getElementById('heroTitel').textContent = data.heroTitel;
+    if(data.heroUntertitel) document.getElementById('heroUntertitel').textContent = data.heroUntertitel;
+    if(data.heroBild) document.getElementById('heroBild').src = data.heroBild;
+  } catch(e) {}
+
+  // Themenwelten
+  const {data:tw} = await API.get('/api/reisen/themenwelten');
+  document.getElementById('themenweltenGrid').innerHTML = tw.map(t=>`
+    <a href="/reisen.html?themenwelt=${t.name}" class="themenwelt-kachel">
+      <div class="icon">${themenweltIcon(t.name)}</div>
+      <div class="name">${themenweltLabel(t.name)}</div>
+      <div class="anzahl">${t.anzahl} Reisen</div>
+    </a>`).join('');
+
+  // Top-Angebote
+  const {data:top} = await API.get('/api/reisen?topAngebote=true');
+  const reisen = top.reisen.slice(0,6);
+  document.getElementById('topGrid').innerHTML = reisen.length ? reisen.map(r=>reiseKarteHtml(r)).join('') : '<p>Keine Top-Angebote vorhanden.</p>';
+}
+laden();
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="de">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mitarbeiter-Login — Die Weltenentdecker Frankfurt</title><link rel="stylesheet" href="/css/style.css"></head>
+<body><header class="kopfzeile"></header>
+<main><section class="section"><div class="container"><div class="karte karte-schmal">
+  <p class="eyebrow">Interner Bereich</p><h1 style="font-size:1.7rem;">Mitarbeiter-Login</h1>
+  <div id="msg"></div>
+  <form id="form">
+    <div class="feld"><label>E-Mail</label><input type="email" id="email" required></div>
+    <div class="feld" style="margin-bottom:20px;"><label>Passwort</label><input type="password" id="pw" required></div>
+    <button type="submit" class="btn btn-primary btn-block">Anmelden</button>
+  </form>
+  <p style="text-align:center;margin-top:14px;font-size:0.78rem;color:var(--text-soft);">Test: Admin@weltenentdecker-frankfurt.de / Mitarbeiter123!</p>
+</div></div></section></main>
+<footer class="footer"></footer>
+<script src="/js/gemeinsam.js"></script>
+<script>
+document.getElementById('form').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const {ok,data}=await API.post('/api/auth/login',{email:document.getElementById('email').value,passwort:document.getElementById('pw').value});
+  if(!ok){document.getElementById('msg').innerHTML=`<div class="fehlerbox"><ul>${(data.fehler||['Fehler']).map(f=>`<li>${escapeHtml(f)}</li>`).join('')}</ul></div>`;return;}
+  if(data.user.rolle!=='mitarbeiter'){document.getElementById('msg').innerHTML='<div class="fehlerbox">Dieses Konto hat keine Mitarbeiter-Berechtigung.</div>';await API.post('/api/auth/logout',{});return;}
+  window.location.href='/mitarbeiter/dashboard.html';
+});
+</script>
+</body></html>
